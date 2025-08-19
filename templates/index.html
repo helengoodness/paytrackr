@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5">
+  <h2 class="text-center mb-4">📊 Dashboard Overview</h2>
+
+  <div class="row">
+    <!-- Total Staff Card -->
+    <div class="col-md-4 mb-4">
+      <div class="card text-white bg-success shadow">
+        <div class="card-body text-center">
+          <h5 class="card-title">Total Staff</h5>
+          <h2>{{ total_staff }}</h2>
+        </div>
+      </div>
+    </div>
+
+    <!-- Monthly Payroll Card -->
+    <div class="col-md-4 mb-4">
+      <div class="card text-white bg-primary shadow">
+        <div class="card-body text-center">
+          <h5 class="card-title">Monthly Payroll Cost</h5>
+          <h2>₦{{ total_payroll | round(2) }}</h2>
+        </div>
+      </div>
+    </div>
+
+    <!-- Department Chart Card -->
+    <div class="col-md-4 mb-4">
+      <div class="card shadow">
+        <div class="card-body">
+          <h5 class="text-center">Department Distribution</h5>
+          <canvas id="deptChart" height="200"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Staff Table -->
+  <hr>
+  <h4 class="mt-4">🆕 Recently Added Staff</h4>
+  <div class="table-responsive">
+    <table class="table table-bordered table-striped">
+      <thead class="table-dark">
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Department</th>
+          <th>Date Employed</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for staff in recent_staff %}
+        <tr>
+          <td>{{ staff[0] }}</td>
+          <td>{{ staff[1] }}</td>
+          <td>{{ staff[2] }}</td>
+          <td>{{ staff[3].strftime('%Y-%m-%d') if staff[3] else 'N/A' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Quick Action Buttons -->
+  <div class="text-center mt-4">
+    <a href="{{ url_for('add_staff') }}" class="btn btn-outline-success mx-2">➕ Add Staff</a>
+    <a href="{{ url_for('payroll') }}" class="btn btn-outline-primary mx-2">💰 View Payroll</a>
+    <a href="{{ url_for('staff_list') }}" class="btn btn-outline-secondary mx-2">📋 Staff List</a>
+  </div>
+</div>
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Chart Script -->
+<script>
+  const ctx = document.getElementById('deptChart').getContext('2d');
+  const deptChart = new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: [{% for dept, count in department_data %}"{{ dept }}"{% if not loop.last %}, {% endif %}{% endfor %}],
+      datasets: [{
+        label: 'Department Staff Count',
+        data: [{% for dept, count in department_data %}{{ count }}{% if not loop.last %}, {% endif %}{% endfor %}],
+        backgroundColor: [
+          '#007bff', '#28a745', '#ffc107', '#dc3545', '#6f42c1', '#17a2b8', '#fd7e14', '#20c997'
+        ],
+        borderColor: '#fff',
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            color: '#000'
+          }
+        },
+        title: {
+          display: false
+        }
+      }
+    }
+  });
+</script>
+{% endblock %}

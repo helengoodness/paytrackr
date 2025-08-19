@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+  <h3 class="text-center mb-4">Payroll Breakdown</h3>
+  <table class="table table-bordered table-striped">
+    <thead class="table-dark">
+      <tr>
+        {% for col in columns %}
+          <th>{{ col }}</th>
+        {% endfor %}
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in payroll_data %}
+        <tr>
+          {% for item in row %}
+            <td>{{ item }}</td>
+          {% endfor %}
+          <td>
+            <form method="POST" action="{{ url_for('payroll', staff_name=row[0]) }}">
+              <input type="hidden" name="amount_paid" value="{{ row[-1] }}">
+              <input type="hidden" name="month" value="{{ current_month }}">
+              <button type="submit" class="btn btn-success btn-sm">Pay</button>
+            </form>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
